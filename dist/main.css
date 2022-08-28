@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Rubik&display=swap");
-
+@import url(https://fonts.googleapis.com/css2?family=Rubik&display=swap);
 * {
   margin: 0;
   padding: 0;
@@ -70,3 +69,6 @@ body {
   margin-bottom: 30px;
   letter-spacing: 1px;
 }
+
+
+/*# sourceMappingURL=main.css.map*/

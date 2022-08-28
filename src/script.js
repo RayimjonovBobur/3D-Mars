@@ -20,7 +20,7 @@ const marsSphere = new THREE.SphereGeometry(0.8, 32, 32);
 const marsMaterial = new THREE.MeshPhongMaterial({
   map: mainTexture,
   bumpMap: bumpTexture,
-  bumpScale: 0.005,
+  bumpScale: 0.007,
 });
 
 // Particle
