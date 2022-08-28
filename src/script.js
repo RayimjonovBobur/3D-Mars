@@ -1,7 +1,12 @@
 import "./style.css";
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+// Texture
+const textures = new THREE.TextureLoader();
+const mainTexture = textures.load("/textures/2k_mars.jpg");
+const bumpTexture = textures.load("/textures/2k_mars_topo.jpg");
+const crrosTexture = textures.load("/textures/unnamed.png");
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 
@@ -9,35 +14,60 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 // Objects
-const geometry = new THREE.BoxGeometry(1, 1, 1);
+const marsSphere = new THREE.SphereGeometry(0.8, 32, 32);
+
+// Mars Materials
+const marsMaterial = new THREE.MeshPhongMaterial({
+  map: mainTexture,
+  bumpMap: bumpTexture,
+  bumpScale: 0.005,
+});
+
+// Particle
+const particles = new THREE.BufferGeometry();
+const particlesCount = 7000;
+const posArray = new Float32Array(particlesCount * 3);
+for (let i = 0; i < particlesCount * 3; i++) {
+  posArray[i] = (Math.random() - 0.5) * (Math.random() * 5);
+}
+
+particles.setAttribute("position", new THREE.BufferAttribute(posArray, 3));
+const particlesMaterial = new THREE.PointsMaterial({
+  size: 0.0019,
+  map: crrosTexture,
+  transparent: true,
+  color: "white",
+});
 
 // Materials
 const material = new THREE.MeshBasicMaterial();
 material.color = new THREE.Color(0xffffff);
 
 // Mesh
-const sphere = new THREE.Mesh(geometry, material);
-scene.add(sphere);
+const particlesSphere = new THREE.Points(particles, particlesMaterial);
+const mars = new THREE.Mesh(marsSphere, marsMaterial);
+scene.add(mars, particlesSphere);
 
 // Lights
-const pointLight = new THREE.PointLight(0xffffff, 0.1);
-pointLight.position.x = 2;
-pointLight.position.y = 3;
-pointLight.position.z = 4;
-scene.add(pointLight);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.1);
+directionalLight.position.set(50, 50, 30);
 
+const hemLight = new THREE.HemisphereLight(0xffeeb1, 0x080820, 1);
+hemLight.position.set(50, -10, -10);
+
+scene.add(directionalLight, hemLight);
 /**
  * Sizes
  */
 const sizes = {
   width: window.innerWidth,
-  height: window.innerHeight,
+  height: window.innerHeight * 2,
 };
 
 window.addEventListener("resize", () => {
   // Update sizes
   sizes.width = window.innerWidth;
-  sizes.height = window.innerHeight;
+  sizes.height = window.innerHeight * 2;
 
   // Update camera
   camera.aspect = sizes.width / sizes.height;
@@ -53,7 +83,7 @@ window.addEventListener("resize", () => {
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(
-  75,
+  85,
   sizes.width / sizes.height,
   0.1,
   100
@@ -64,14 +94,15 @@ camera.position.z = 2;
 scene.add(camera);
 
 // Controls
-const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
+// const controls = new OrbitControls(camera, canvas);
+// controls.enableDamping = true;
 
 /**
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
+  antialias: true,
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -86,11 +117,10 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
   // Update objects
-  sphere.rotation.y = 0.5 * elapsedTime;
-
+  mars.rotation.y += 0.002;
+  particlesSphere.rotation.y = -0.05 * elapsedTime;
   // Update Orbital Controls
   // controls.update()
-
   // Render
   renderer.render(scene, camera);
 
